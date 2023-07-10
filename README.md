@@ -11,9 +11,6 @@ A clustering strategy for [libcluster](https://hexdocs.pm/libcluster) using Post
 
 Many Elixir applications already depend on a single PostgreSQL database. That same database is used to communicate between nodes and form a cluster without any additional infrastructure.
 
-## Features
-
-- 
 
 ## Installation
 
@@ -32,7 +29,7 @@ your shell, or by going to the `libcluster_postgrex_notifications` [page on Hex.
 
 ## Usage
 
-Add 
+Add the strategy and config to your topologies.
 
 ```elixir
 config :libcluster,
@@ -40,8 +37,18 @@ config :libcluster,
     postgrex_notifications_example: [
       strategy: Cluster.Strategy.PostgrexNotifications,
       config: [
-        channel: "libcluster"
+        postgrex: MyApp.Postgrex,
+        notifications: MyApp.Notifications,
+        channel: "libcluster_postgrex_notifications"
       ]
     ]
   ]
+```
+
+Make sure `postgrex` and `notifications` correspond to `pid`s or process names of `Postgrex` and `Postgrex.Notifications`.
+
+```elixir
+# Starting these under a Supervisor is a better idea
+{:ok, _} = Postgrex.start_link(opts, name: MyApp.Postgrex)
+{:ok, _} = Postgrex.Notifications.start_link(opts, name: MyApp.Notifications)
 ```
